@@ -1,18 +1,33 @@
 import postgres from 'postgres';
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const sql = postgres(process.env.POSTGRES_URL, {
   ssl: 'allow',
 });
 
+/** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,
+  
+  webpack: (config) => {
+    config.resolve.alias['postcss-config'] = path.resolve(__dirname, 'postcss.config.mjs');
+    return config;
+  },
   experimental: {
-    ppr: true,
+    serverActions: true,
   },
-  logging: {
-    fetches: {
-      fullUrl: true,
-    },
-  },
+  // experimental: {
+  //   ppr: true,
+  // },
+  // logging: {
+  //   fetches: {
+  //     fullUrl: true,
+  //   },
+  // },
   transpilePackages: ['next-mdx-remote'],
   async redirects() {
     if (!process.env.POSTGRES_URL) {
